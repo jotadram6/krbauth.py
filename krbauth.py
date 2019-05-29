@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import subprocess
 import argparse
@@ -7,9 +7,12 @@ import getpass
 
 def krbauth(username, password):
     cmd = ['kinit', username]
-    success = subprocess.run(cmd, input=password.encode(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
-    return not bool(success)
-
+    proc = subprocess.Popen(['kinit',username,'-l 2147483647'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc.stdin.write(password+'\n')
+    proc.stdin.flush()
+    stdout, stderr = proc.communicate()
+    #print stdout, stderr
+    return not bool(len(stderr))
 
 def log(message, quiet):
     if not quiet:
